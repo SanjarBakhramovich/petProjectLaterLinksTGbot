@@ -1,2 +1,5 @@
-# petProjectLaterLinksTGbot
-Bot which saves links for later revision, and return them in random order.
+# Read Adviser Bot
+
+**Read Adviser Bot** - is a bot for Telegram that can save links sent by users and can send you random from them.
+
+It can be useful for people who often save many links, but always forget about them.

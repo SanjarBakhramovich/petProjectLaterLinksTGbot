@@ -1,17 +1,25 @@
 package telegram
 
-// UpdateResponse представляет собой структуру ответа на запрос обновлений Telegram
-type UpdateResponse struct {
-	// Ok указывает, был ли запрос успешным
-	Ok bool `json:"ok"`
-	// Result содержит массив обновлений
-	Result []Update `json:"response"`
+type UpdatesResponse struct {
+	Ok     bool     `json:"ok"`
+	Result []Update `json:"result"`
 }
 
-// Update представляет собой структуру для обновления Telegram
 type Update struct {
-	// ID - уникальный идентификатор обновления
-	ID int `json:"update_id"`
-	// Message - содержание сообщения
-	Message string `json:"message"`
+	ID      int              `json:"update_id"`
+	Message *IncomingMessage `json:"message"`
+}
+
+type IncomingMessage struct {
+	Text string `json:"text"`
+	From From   `json:"from"`
+	Chat Chat   `json:"chat"`
+}
+
+type From struct {
+	Username string `json:"username"`
+}
+
+type Chat struct {
+	ID int `json:"id"`
 }

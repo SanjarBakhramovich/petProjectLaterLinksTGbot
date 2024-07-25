@@ -1,40 +1,38 @@
 package main
 
 import (
-	"flag"
 	"log"
-	"readAdviserBot/clients/telegram"
+	"time"
+
+	tgClient "read-adviser-bot/clients/telegram"
+	"read-adviser-bot/config"
+	"read-adviser-bot/consumer/event-consumer"
+	"read-adviser-bot/events/telegram"
+	"read-adviser-bot/storage/mongo"
 )
 
 const (
-	tgBotHost = "api.telegram.org"
+	tgBotHost   = "api.telegram.org"
+	storagePath = "files_storage"
+	batchSize   = 100
 )
 
 func main() {
+	cfg := config.MustLoad()
+	//storage := files.New(storagePath)
 
-	tgClient = telegram.New(tgBotHost, mustToken())
-	// Получение токена из флагов командной строки
-	// token = flags.Get(token)
+	storage := mongo.New(cfg.MongoConnectionString, 10*time.Second)
 
-	// Создание нового экземпляра fetcher для получения данных
-	// fetcher = fetcher.New()
+	eventsProcessor := telegram.New(
+		tgClient.New(tgBotHost, cfg.TgBotToken),
+		storage,
+	)
 
-	// Создание нового экземпляра processor для обработки полученных данных
-	// processor = processor.New()
+	log.Print("service started")
 
-	// Запуск consumer, который использует fetcher для получения данных и processor для их обработки
-	// consumer.Start(fetcher, processor)
+	consumer := event_consumer.New(eventsProcessor, eventsProcessor, batchSize)
 
-}
-
-// mustToken возвращает токен доступа к Telegram боту, который передается через флаг командной строки "token-is-bot-token".
-func mustToken() string {
-	token := flag.String("token-is-bot-token", "", "token for access to telegram bot")
-
-	flag.Parse()
-
-	if *token == "" {
-		log.Fatal("token is not specified")
+	if err := consumer.Start(); err != nil {
+		log.Fatal("service is stopped", err)
 	}
-	return *token
 }
